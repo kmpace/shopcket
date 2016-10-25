@@ -1,9 +1,9 @@
 import request from 'request';
-import cheerio form 'cheerio';
+import cheerio from 'cheerio';
 import fs from 'fs';
+import { item } from './App';
 
-
-request(url , function(error, response, html){
+request(item , function(error, response, html){
 	var productPrice;
 	var productCompany;
 	var productName;
@@ -20,9 +20,11 @@ if(!error && response.statusCode == 200){
 	var $ = cheerio.load(html);
 
 	$.fn.ignore = function(sel) {
-		return this.clone().find(sel||">*".remove().end()
+		return this.clone().find(sel||">*").remove().end();
 	};
 
+
+//Get Product Name from H&M 
 
 $('form#product h1').each(function(i, element){
 	var product = $(this);
@@ -33,6 +35,8 @@ $('form#product h1').each(function(i, element){
 })
 
 
+//Get Product Price from H&M 
+
 $('span.price span').each(function(i, element){
 	var price = $(this);
 	var productPrice = price.text();
@@ -40,6 +44,13 @@ $('span.price span').each(function(i, element){
 	json.productPrice = productPrice;
 
 
+})
+
+//Get Company Name from H&M 
+
+$('#logotype.children("img).("alt")').each(function(i,element){
+	var company = $(this);
+	var companyName  = company.text; 
 })
 
 
@@ -51,10 +62,4 @@ fs.writeFile('productDetails.json', JSON.stringify(json, null, 4), function(err)
 });
 
 }
-
-
-
-
-
-
 })
