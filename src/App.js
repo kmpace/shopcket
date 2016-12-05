@@ -3,6 +3,116 @@ import request from 'request';
 import cheerio from 'cheerio';
 import fs from 'fs';
 import * as firebase from 'firebase';
+import Products from './products.json';
+
+
+
+console.log(Products);
+
+var HMUrl = 'https://crossorigin.me/' + Products[1];
+
+console.log(HMUrl);
+
+
+request(HMUrl , function(error, response, html) {
+      // var productPrice;
+      // var productName;
+      // var company;
+       
+       var json = {
+            productName: "",
+            productPrice: "",
+            company: ""
+        };
+    
+    
+    if (!error && response.statusCode === 200) {
+        var $ = cheerio.load(html); 
+        
+       $.fn.ignore = function(sel){
+      return this.clone().find(sel||">*").remove().end();
+      };
+        
+        
+        
+        $('form#product h1').each(function(i, element){
+            
+            var product = $(this);
+            var productName = product.ignore("span").text();
+            
+            json.productName = productName;
+            console.log(productName.trim());
+            
+            
+            // console.log($(this).ignore("span").text());
+            
+            
+            
+        })
+        
+        $('span.price span').each(function(i, element){
+            var price = $(this);
+            var productPrice = price.text();
+            
+            json.productPrice = productPrice;
+            console.log(productPrice);
+        
+        })
+        
+    
+    var header =  $('#header a')
+    var company =  $(header).children('img').attr('alt');
+    json.company = company;
+
+    console.log(company);
+        
+}
+
+});
+
+
+
+
+// class AddItem extends Component {
+//   constructor (props) {
+//     super(props);
+//     this.state = {
+//       company: props.company,
+//       productName: props.productName,
+//       productPrice: props.productPrice 
+//     };
+    
+//     this.dbItems = firebase.database().ref().child('items');
+//     this.handleUpdateItem = this.handleUpdateItem.bind(this);
+    
+//   } 
+  
+//   handleUpdateItem(e) {
+//       e.preventDefault();
+      
+//       if (this.state.text && this.state.text.trim().length !== 0) {
+//         this.dbItems.child(this.props.dbkey).update(this.state); 
+        
+//       }
+      
+      
+//     }
+    
+// render() {
+//   return( 
+//   <form onSubmit={ this.handleUpdateItem }>
+//       <label>I want to track
+//         <input placeholder={"Paste URL Here"} 
+//               type="text"
+//               value={this.state.item}
+//               onChange={this.newItem}
+//             /> 
+//     </label>
+//   </form>
+//   )
+// }
+// }
+
 
 var config = {
   
@@ -14,50 +124,6 @@ var config = {
 }; 
 
 firebase.initializeApp(config);
-
-
-class AddItem extends Component {
-  constructor (props) {
-    super(props);
-    this.state = {
-      company: props.company,
-      productName: props.productName,
-      productPrice: props.productPrice 
-    };
-    
-    this.dbItems = firebase.database().ref().child('items');
-    this.handleUpdateItem = this.handleUpdateItem.bind(this);
-    
-  } 
-  
-  handleUpdateItem(e) {
-      e.preventDefault();
-      
-      if (this.state.text && this.state.text.trim().length !== 0) {
-        this.dbItems.child(this.props.dbkey).update(this.state); 
-        
-      }
-      
-      
-    }
-    
-render() {
-  return( 
-  <form onSubmit={ this.handleUpdateItem }>
-      <label>I want to track
-        <input placeholder={"Paste URL Here"} 
-               type="text"
-               value={this.state.item}
-               onChange={this.newItem}
-            /> 
-    </label>
-  </form>
-  )
-}
-}
-
-
-
 
 
 class App extends Component {
